@@ -1,8 +1,17 @@
 library(rhdfs)
 library(jsonlite)
 hdfs.init()
-test.json.path="/user/hive/warehouse/4ml.db/test.json"
-order <- data.frame(do.call(
-           rbind,
-           lapply(hdfs.read.text.file(test.json.path), function(it) fromJSON(it))
-         ))
+
+head(
+  data.frame(do.call(
+    rbind,
+    lapply(
+      unlist(sapply(
+        head(hdfs.ls("/user/hive/warehouse/4ml.db/R/d_bolome_orders", recurse=T)$file),
+        function(it) hdfs.read.text.file(it),
+        USE.NAMES = FALSE
+      )),
+      function(it) fromJSON(it)
+    )
+  ))
+)
